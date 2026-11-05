@@ -1,0 +1,58 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0a10">
+  <title>{% block title %}Omniverse — Tu universo creativo{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{% static 'images/omniverse-logo.png' %}">
+  <link rel="stylesheet" href="{% static 'css/website.css' %}">
+</head>
+<body class="site-body">
+  <div class="site-noise" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="site-brand" href="{% url 'landing' %}" aria-label="Omniverse, inicio">
+      <img src="{% static 'images/omniverse-logo.png' %}" alt="" class="site-logo">
+      <span>OMNI<span class="brand-light">VERSE</span></span>
+    </a>
+    <nav class="site-nav" aria-label="Navegación principal">
+      <a href="{% url 'landing' %}#funciones">Funciones</a>
+      <a href="{% url 'landing' %}#planes">Planes</a>
+      {% if request.user.is_authenticated %}
+        <a href="{% url 'web_account' %}">Mi cuenta</a>
+        <a class="nav-cta" href="omniverse://open">Abrir Omniverse <span aria-hidden="true">↗</span></a>
+      {% else %}
+        <a href="{% url 'web_login' %}">Iniciar sesión</a>
+        <a class="nav-cta" href="{% url 'register' %}">Crear cuenta <span aria-hidden="true">↗</span></a>
+      {% endif %}
+    </nav>
+    <button class="mobile-nav-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" id="mobile-nav-toggle"><span></span><span></span></button>
+  </header>
+
+  {% if messages %}
+    <div class="site-messages" role="status">
+      {% for message in messages %}<div class="site-message {{ message.tags }}">{{ message }}</div>{% endfor %}
+    </div>
+  {% endif %}
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <footer class="site-footer">
+    <a class="site-brand footer-brand" href="{% url 'landing' %}"><img src="{% static 'images/omniverse-logo.png' %}" alt="" class="site-logo"><span>OMNI<span class="brand-light">VERSE</span></span></a>
+    <p>Un espacio para organizar mundos, personajes e historias.</p>
+    <span class="footer-note">Proyecto escolar · funcionamiento local · sin pagos reales</span>
+  </footer>
+  <script>
+    (() => {
+      const button = document.getElementById('mobile-nav-toggle');
+      const nav = document.querySelector('.site-nav');
+      if (button && nav) button.addEventListener('click', () => {
+        const opened = button.getAttribute('aria-expanded') === 'true';
+        button.setAttribute('aria-expanded', String(!opened));
+        nav.classList.toggle('is-open', !opened);
+      });
+    })();
+  </script>
+</body>
+</html>

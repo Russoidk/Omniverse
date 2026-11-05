@@ -1,0 +1,422 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Omniverse{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+
+
+<body>
+
+    <div class="app">
+
+        <!-- =========================
+             MENÚ LATERAL
+             ========================= -->
+
+        <aside class="sidebar">
+
+            <!-- Logo -->
+            <a class="sidebar-logo" href="{% url 'home' %}" aria-label="Omniverse, Centro de Comando">
+                <img src="{% static 'images/omniverse-logo.png' %}" alt="" class="brand-mark">
+                <span>OMNIVERSE</span>
+            </a>
+
+            {% if project %}
+                <div class="sidebar-current-project">
+                    <span>PROYECTO ACTIVO</span>
+                    <strong>{{ project.name }}</strong>
+                </div>
+            {% endif %}
+
+            <!-- Navegación principal -->
+            <nav class="sidebar-nav" aria-label="Navegación principal">
+                <a href="{% url 'home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="4" rx="1.5"/><rect x="14" y="10" width="7" height="11" rx="1.5"/><rect x="3" y="13" width="7" height="8" rx="1.5"/></svg></span>
+                    <span>Centro de Comando</span>
+                </a>
+                <div class="nav-section">Organización</div>
+                <a href="{% url 'characters' %}" class="nav-item {% if request.resolver_match.url_name == 'characters' or request.resolver_match.url_name == 'character_create' or request.resolver_match.url_name == 'character_detail' or request.resolver_match.url_name == 'character_edit' or request.resolver_match.url_name == 'character_delete' or request.resolver_match.url_name == 'character_add_relationship' or request.resolver_match.url_name == 'character_delete_relationship' or request.resolver_match.url_name == 'character_export' %}active{% endif %}">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-4 2.8-6 6.5-6s6 2 6.5 6"/><path d="M16 5.5a3.5 3.5 0 0 1 0 6.7M18 15c2 .7 3.2 2.3 3.5 5"/></svg></span>
+                    <span>Personajes</span>
+                </a>
+                <a href="{% url 'timeline' %}" class="nav-item {% if request.resolver_match.url_name == 'timeline' or request.resolver_match.url_name == 'event_create' or request.resolver_match.url_name == 'event_detail' or request.resolver_match.url_name == 'event_edit' or request.resolver_match.url_name == 'event_delete' or request.resolver_match.url_name == 'event_add_relationship' or request.resolver_match.url_name == 'event_delete_relationship' or request.resolver_match.url_name == 'event_move_order' or request.resolver_match.url_name == 'span_create' or request.resolver_match.url_name == 'span_edit' or request.resolver_match.url_name == 'span_delete' %}active{% endif %}">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4v16M5 7h5l3 4h6M5 17h5l3-4h6"/><circle cx="5" cy="4" r="2"/><circle cx="19" cy="11" r="2"/><circle cx="19" cy="13" r="2"/><circle cx="5" cy="20" r="2"/></svg></span>
+                    <span>Cronología</span>
+                </a>
+                <a href="{% url 'places' %}" class="nav-item {% if request.resolver_match.url_name == 'places' or request.resolver_match.url_name == 'place_create' or request.resolver_match.url_name == 'place_edit' or request.resolver_match.url_name == 'place_delete' %}active{% endif %}">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+                    <span>Lugares</span>
+                </a>
+                <a href="{% url 'concept_map' %}" class="nav-item {% if request.resolver_match.url_name == 'concept_map' %}active{% endif %}">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="m10.7 7.2-4.3 8.5m6.9-8.5 4.3 8.5M7.5 18h9"/></svg></span>
+                    <span>Red conceptual</span>
+                </a>
+            </nav>
+
+            <!-- Ajustes -->
+            <div class="sidebar-bottom">
+
+                <button
+                    type="button"
+                    class="nav-item settings-button"
+                    onclick="openSettings()">
+
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a7.8 7.8 0 0 1-1.8 1l-.3 1.8h-2.8l-.3-1.8a7.8 7.8 0 0 1-1.8-1l-1.7.7-1.4-2.4L7.1 15a8 8 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.7a7.8 7.8 0 0 1 1.8-1l.3-1.8h2.8l.3 1.8a7.8 7.8 0 0 1 1.8 1l1.7-.7 1.4 2.4-1.4 1.1a8 8 0 0 1 0 2Z"/></svg></span>
+                    <span>Ajustes</span>
+
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =========================
+             CONTENIDO
+             ========================= -->
+
+        <button type="button" class="sidebar-toggle" id="sidebar-toggle" aria-expanded="true" aria-label="Ocultar barra lateral" title="Ocultar barra lateral">☷ <span>Ocultar menú</span></button>
+
+        <main class="main-content">
+
+            {% if messages %}
+                <div class="messages" role="status">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}
+            {% endblock %}
+
+        </main>
+
+    </div>
+
+        <div id="settings-overlay" class="settings-overlay">
+
+        <div class="settings-modal">
+
+            <!-- Ajustes -->
+
+            <div
+                id="settings-main"
+                class="settings-panel">
+
+                <div class="settings-header">
+
+                    <div>
+
+                        <p class="settings-eyebrow">
+                            OMNIVERSE
+                        </p>
+
+                        <h2>Ajustes</h2>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="settings-close"
+                        onclick="closeSettings()">
+
+                        ×
+
+                    </button>
+
+                </div>
+
+
+                <div class="settings-content">
+
+                    <div class="settings-section">
+
+                        <h3>Proyecto</h3>
+
+
+                        <button
+                            type="button"
+                            class="settings-option"
+                            onclick="showSettingsPanel('settings-projects')">
+
+                            <div>
+
+                                <strong>
+                                    Cambiar proyecto
+                                </strong>
+
+                                <span>
+                                    Selecciona otro proyecto de Omniverse.
+                                </span>
+
+                            </div>
+
+                            <span>›</span>
+
+                        </button>
+
+
+                        <a href="{% url 'project_settings' %}" class="settings-option">
+                            <div><strong>Personalizar proyecto</strong><span>Cambia el nombre, las eras históricas y qué aparece en el Centro de Comando.</span></div>
+                            <span>›</span>
+                        </a>
+
+                        <button
+                            type="button"
+                            class="settings-option"
+                            onclick="showSettingsPanel('settings-create-project')">
+
+                            <div>
+
+                                <strong>
+                                    Crear proyecto
+                                </strong>
+
+                                <span>
+                                    Comienza un nuevo universo.
+                                </span>
+
+                            </div>
+
+                            <span>›</span>
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="settings-section">
+
+                        <h3>Cuenta</h3>
+
+                        <div class="settings-account-card">
+                            <strong>{{ request.user.email }}</strong>
+                            <span>{% if request.user.is_subscribed %}Plan suscrito{% else %}Plan gratuito{% endif %}</span>
+                            {% if not request.user.is_subscribed %}
+                                <a class="settings-subscribe-option" href="{{ subscription_url }}">
+                                    <span class="subscribe-icon" aria-hidden="true">✦</span><span><strong>Suscribirse</strong><small>Desbloquea más proyectos y exportaciones.</small></span><span class="subscribe-arrow">↗</span>
+                                </a>
+                            {% endif %}
+                            <div class="settings-account-actions">
+                                <a href="{% url 'web_account' %}" class="secondary-button">Mi cuenta web</a>
+                                <a href="{% url 'change_password' %}" class="secondary-button">Cambiar contraseña</a>
+                                <form method="post" action="{% url 'logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="secondary-button">Cerrar sesión</button>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Cambiar proyecto -->
+
+            <div
+                id="settings-projects"
+                class="settings-panel"
+                style="display: none;">
+
+                <div class="settings-header">
+
+                    <div>
+
+                        <button
+                            type="button"
+                            class="settings-back"
+                            onclick="showSettingsPanel('settings-main')">
+
+                            ←
+                            <span>Volver</span>
+
+                        </button>
+
+                        <h2>Cambiar proyecto</h2>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="settings-close"
+                        onclick="closeSettings()">
+
+                        ×
+
+                    </button>
+
+                </div>
+
+
+                <div class="settings-content">
+
+                    <div class="settings-section">
+
+                        <h3>Tus proyectos</h3>
+
+
+                        {% for project in user.projects.all %}
+
+                            <a
+                                href="{% url 'select_project' project.id %}"
+                                class="settings-project-option">
+
+                                <div>
+
+                                    <strong>
+                                        {{ project.name }}
+                                    </strong>
+
+                                    {% if project.description %}
+
+                                        <span>
+                                            {{ project.description }}
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                                {% if project.id == request.session.active_project_id %}
+
+                                    <span class="settings-project-active">
+                                        ACTIVO
+                                    </span>
+
+                                {% else %}
+
+                                    <span>›</span>
+
+                                {% endif %}
+
+                            </a>
+
+                        {% empty %}
+
+                            <p class="settings-empty">
+                                No tienes proyectos.
+                            </p>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Crear proyecto -->
+
+            <div
+                id="settings-create-project"
+                class="settings-panel"
+                style="display: none;">
+
+                <div class="settings-header">
+
+                    <div>
+
+                        <button
+                            type="button"
+                            class="settings-back"
+                            onclick="showSettingsPanel('settings-main')">
+
+                            ←
+                            <span>Volver</span>
+
+                        </button>
+
+                        <h2>Crear proyecto</h2>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="settings-close"
+                        onclick="closeSettings()">
+
+                        ×
+
+                    </button>
+
+                </div>
+
+
+                <div class="settings-content">
+
+                    <div class="settings-section">
+
+                        <h3>Nuevo proyecto</h3>
+
+                        <form
+                            method="POST"
+                            action="{% url 'create_project_from_settings' %}"
+                            class="settings-form">
+
+                            {% csrf_token %}
+
+                            <label for="project-name">
+                                Nombre
+                            </label>
+
+                            <input
+                                id="project-name"
+                                type="text"
+                                name="name"
+                                maxlength="200"
+                                placeholder="Ej. Proyecto de fantasía"
+                                required>
+
+
+                            <label for="project-description">
+                                Descripción
+                            </label>
+
+                            <textarea
+                                id="project-description"
+                                name="description"
+                                rows="5"
+                                placeholder="Describe brevemente este proyecto…"></textarea>
+
+
+                            <button
+                                type="submit"
+                                class="settings-submit">
+
+                                Crear proyecto
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="{% static 'js/main.js' %}"></script>
+
+</body>
+
+</html>

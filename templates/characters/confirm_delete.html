@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block title %}Eliminar personaje — Omniverse{% endblock %}
+{% block content %}
+<div class="confirm-panel"><p class="dashboard-eyebrow">CONFIRMAR ACCIÓN</p><h1>Eliminar a {{ character.full_name }}</h1><p class="muted">Esta acción no se puede deshacer. También se eliminarán sus relaciones. El acontecimiento automático de nacimiento se quitará si ya no tiene otros personajes vinculados.</p><form method="post" class="form-actions">{% csrf_token %}<a class="secondary-button" href="{% url 'character_detail' character.pk %}">Cancelar</a><button type="submit" class="danger-button">Eliminar personaje</button></form></div>
+{% endblock %}

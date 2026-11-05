@@ -1,0 +1,78 @@
+{
+  "name": "omniverse-desktop",
+  "version": "1.0.5",
+  "description": "Omniverse: aplicación local de organización creativa — versión 1.0.5",
+  "main": "electron-main.js",
+  "author": "Omniverse",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^38.2.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "local.omniverse.desktop",
+    "productName": "Omniverse",
+    "asar": false,
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "**/*",
+      "!release{,/**/*}",
+      "!build/python-3.14.10-amd64.exe",
+      "!download-python.ps1",
+      "!node_modules{,/**/*}",
+      "!venv{,/**/*}",
+      "!.venv{,/**/*}",
+      "!db.sqlite3",
+      "!media{,/**/*}",
+      "!.git{,/**/*}",
+      "!__pycache__{,/**/*}",
+      "!**/__pycache__{,/**/*}",
+      "!**/*.pyc",
+      "!*.log"
+    ],
+    "win": {
+      "icon": "build/omniverse.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "Omniverse-Instalador-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Omniverse",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true,
+      "include": "build/installer.nsh"
+    },
+    "protocols": [
+      {
+        "name": "Omniverse",
+        "schemes": [
+          "omniverse"
+        ]
+      }
+    ],
+    "extraResources": [
+      {
+        "from": "build/python-3.14.10-amd64.exe",
+        "to": "python-installer.exe"
+      }
+    ]
+  }
+}

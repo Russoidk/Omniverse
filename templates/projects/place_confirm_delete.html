@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}Eliminar lugar — Omniverse{% endblock %}
+{% block content %}<div class="confirm-panel"><p class="dashboard-eyebrow">CONFIRMAR ACCIÓN</p><h1>Eliminar «{{ place.name }}»</h1><p class="muted">El lugar desaparecerá de las selecciones de residencia y acontecimientos. Las fichas que lo utilizaban quedarán sin residencia asignada.</p><form method="post" class="form-actions">{% csrf_token %}<a href="{% url 'places' %}" class="secondary-button">Cancelar</a><button class="danger-button" type="submit">Eliminar lugar</button></form></div>{% endblock %}

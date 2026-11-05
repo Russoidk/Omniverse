@@ -1,0 +1,431 @@
+{% extends 'base.html' %}
+{% block title %}Red conceptual — Omniverse{% endblock %}
+{% block content %}
+<div class="graph-page-header"><div><p class="dashboard-eyebrow">{{ project.name }} · VISIÓN GENERAL</p><h1>Red conceptual</h1><p class="muted">Explora cómo se conectan personajes, acontecimientos y lugares.</p></div><div class="heading-actions"><button class="secondary-button" type="button" onclick="toggleGraphDrawer()">☷ Conexiones</button><button class="primary-button" type="button" onclick="openConnectionModal()">＋ Nueva conexión</button></div></div>
+<div class="graph-layout">
+    <section class="graph-panel">
+        <div class="graph-panel-header"><div><p class="dashboard-eyebrow">MAPA INTERACTIVO</p><h2>Tu red de ideas</h2><p class="muted">Arrastra los nodos o reorganiza la red con las fuerzas físicas.</p></div><span class="chip">{{ nodes|length }} nodos · {{ graph_edge_count }} conexiones</span></div>
+        <div class="graph-floating-tools" role="group" aria-label="Controles de la red conceptual">
+            <div class="graph-force-controls" role="group" aria-label="Distribución de nodos">
+                <label class="graph-slider-control" for="graph-separation"><span>Distancia</span><input id="graph-separation" type="range" min="10" max="100" value="48" title="Distancia entre nodos"></label>
+                <label class="graph-slider-control" for="graph-repulsion"><span>Repulsión</span><input id="graph-repulsion" type="range" min="10" max="100" value="55" title="Fuerza de repulsión"></label>
+                <button class="graph-tool-button" type="button" id="graph-arrange">✧ Reorganizar</button>
+            </div>
+            <div class="graph-navigation-tools" role="group" aria-label="Zoom y encuadre">
+                <button class="graph-tool-button graph-zoom-button" type="button" id="graph-zoom-out" aria-label="Alejar" title="Alejar">−</button>
+                <span id="graph-zoom-value" class="graph-zoom-value">100 %</span>
+                <button class="graph-tool-button graph-zoom-button" type="button" id="graph-zoom-in" aria-label="Acercar" title="Acercar">＋</button>
+                <button class="graph-tool-button" type="button" id="graph-fit">⌗ Ajustar a la red</button>
+            </div>
+        </div>
+        <div id="concept-graph-viewport" class="concept-graph-viewport" aria-label="Lienzo conceptual: arrastra el fondo para moverte y usa la rueda del ratón para acercar o alejar">
+            <svg id="concept-graph" class="concept-graph" viewBox="0 0 1000 650" role="img" aria-label="Mapa conceptual interactivo" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+        <div class="graph-legend" role="group" aria-label="Filtrar elementos de la red conceptual" style="max-width: 600px;">
+            <button type="button" class="graph-filter-button" data-filter-type="CHARACTER" aria-pressed="true"><i class="legend-dot character-dot"></i>Personajes</button>
+            <button type="button" class="graph-filter-button" data-filter-type="PLACE" aria-pressed="true"><i class="legend-dot place-dot"></i>Lugares</button>
+            <button type="button" class="graph-filter-button" data-filter-type="EVENT" aria-pressed="true"><i class="legend-dot event-dot"></i>Acontecimientos</button>
+            <span class="graph-filter-hint">Selecciona una categoría para ver solo sus elementos y las conexiones entre ellos. Vuelve a pulsarla para mostrar todo.</span>
+        </div>
+        <aside class="graph-info-drawer" id="graph-connections-drawer" hidden>
+            <div class="panel-heading"><div><p class="dashboard-eyebrow">DETALLE DE RED</p><h2>Conexiones personalizadas</h2></div><button type="button" class="settings-close" onclick="toggleGraphDrawer(false)" aria-label="Cerrar">×</button></div>
+            <p class="form-help">Las relaciones definidas en las fichas y en la cronología también se dibujan automáticamente. Aquí puedes administrar las conexiones manuales.</p>
+            {% for connection in connections %}<div class="graph-connection-row"><div><strong>{{ connection.source_node.label }}</strong><span class="connection-label">{{ connection.label|default:connection.relationship_type|default:'relacionado con' }}</span><strong>{{ connection.target_node.label }}</strong>{% if connection.description %}<p>{{ connection.description|linebreaksbr }}</p>{% endif %}</div><form method="post" action="{% url 'concept_connection_delete' connection.pk %}">{% csrf_token %}<button type="submit" class="icon-button" title="Eliminar conexión" aria-label="Eliminar conexión">×</button></form></div>{% empty %}<p class="empty-inline">Aún no hay conexiones manuales. Prueba con «Nueva conexión».</p>{% endfor %}
+        </aside>
+    </section>
+</div>
+
+<div class="floating-modal-backdrop {% if form.errors %}open{% endif %}" id="new-connection-modal" aria-hidden="{% if form.errors %}false{% else %}true{% endif %}">
+    <section class="floating-modal graph-connection-modal" role="dialog" aria-modal="true" aria-labelledby="new-connection-title">
+        <header class="floating-modal-header"><div><p class="dashboard-eyebrow">RED CONCEPTUAL</p><h2 id="new-connection-title">Nueva conexión</h2><p class="muted">Define la relación entre dos elementos del proyecto.</p></div><button type="button" class="settings-close" onclick="closeConnectionModal()" aria-label="Cerrar">×</button></header>
+        {% if nodes|length >= 2 %}<form method="post" class="floating-modal-content form-stack graph-connection-form">{% csrf_token %}
+            {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+            <div class="form-field"><label for="{{ form.source_node.id_for_label }}">Elemento de origen</label>{{ form.source_node }}{% for error in form.source_node.errors %}<p class="field-error">{{ error }}</p>{% endfor %}<small class="form-help">El primer elemento de la relación.</small></div>
+            <div class="form-field"><label for="{{ form.target_node.id_for_label }}">Elemento de destino</label>{{ form.target_node }}{% for error in form.target_node.errors %}<p class="field-error">{{ error }}</p>{% endfor %}<small class="form-help">No puede ser el mismo que el origen.</small></div>
+            <div class="form-grid two-col"><div class="form-field">{{ form.relationship_type.label_tag }}{{ form.relationship_type }}{% for error in form.relationship_type.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div><div class="form-field">{{ form.label.label_tag }}{{ form.label }}{% for error in form.label.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div></div>
+            <div class="form-field">{{ form.description.label_tag }}{{ form.description }}{% for error in form.description.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+            <p class="form-help">Ejemplos: «protege a», «provocó», «vive en», «se opone a», «ocurre después de». Puedes escribir tu propio tipo de vínculo.</p>
+            <div class="form-actions"><button type="button" class="secondary-button" onclick="closeConnectionModal()">Cancelar</button><button class="primary-button" type="submit">＋ Crear conexión</button></div>
+        </form>{% else %}<div class="floating-modal-content"><p class="empty-inline">Crea al menos dos personajes, acontecimientos o lugares antes de conectarlos.</p><button class="secondary-button" type="button" onclick="closeConnectionModal()">Cerrar</button></div>{% endif %}
+    </section>
+</div>
+{{ graph_data|json_script:"concept-map-data" }}
+<script>
+function openConnectionModal() { const modal = document.getElementById('new-connection-modal'); if (!modal) return; modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); }
+function closeConnectionModal() { const modal = document.getElementById('new-connection-modal'); if (!modal) return; modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }
+function toggleGraphDrawer(force) { const drawer = document.getElementById('graph-connections-drawer'); if (!drawer) return; const show = typeof force === 'boolean' ? force : drawer.hidden; drawer.hidden = !show; }
+(function () {
+    const svg = document.getElementById('concept-graph');
+    const dataElement = document.getElementById('concept-map-data');
+    const modal = document.getElementById('new-connection-modal');
+    const viewport = document.getElementById('concept-graph-viewport');
+    if (modal) modal.addEventListener('click', e => { if (e.target === modal) closeConnectionModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeConnectionModal(); toggleGraphDrawer(false); } });
+    if (!svg || !dataElement || !viewport) return;
+
+    const graph = JSON.parse(dataElement.textContent);
+    const NS = 'http://www.w3.org/2000/svg';
+    const WORLD_WIDTH = 1000;
+    const WORLD_HEIGHT = 650;
+    svg.setAttribute('viewBox', `0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`);
+    // Mantiene la escala X/Y uniforme al cambiar el ancho disponible (p. ej. al ocultar el sidebar).
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    svg.style.width = '100%';
+    svg.style.height = '100%';
+
+    const nodeById = new Map(graph.nodes.map(node => [node.id, node]));
+    const positionById = new Map(graph.nodes.map(node => [node.id, {
+        x: Number.isFinite(Number(node.x)) && !(Number(node.x) === 0 && Number(node.y) === 0) ? Number(node.x) : 500,
+        y: Number.isFinite(Number(node.y)) && !(Number(node.x) === 0 && Number(node.y) === 0) ? Number(node.y) : 325
+    }]));
+    const velocities = new Map(graph.nodes.map(node => [node.id, {x: 0, y: 0}]));
+    const world = document.createElementNS(NS, 'g');
+    world.setAttribute('id', 'concept-world');
+    const edgeLayer = document.createElementNS(NS, 'g');
+    const nodeLayer = document.createElementNS(NS, 'g');
+    world.append(edgeLayer, nodeLayer);
+    svg.append(world);
+    const edgeElements = [];
+    const nodeElements = new Map();
+    const dragging = new Set();
+    const filterButtons = [...document.querySelectorAll('.graph-filter-button[data-filter-type]')];
+    let activeTypeFilter = null;
+    let selectedNodeId = null;
+    const separationInput = document.getElementById('graph-separation');
+    const repulsionInput = document.getElementById('graph-repulsion');
+    const arrangeButton = document.getElementById('graph-arrange');
+    const zoomInButton = document.getElementById('graph-zoom-in');
+    const zoomOutButton = document.getElementById('graph-zoom-out');
+    const fitButton = document.getElementById('graph-fit');
+    const zoomLabel = document.getElementById('graph-zoom-value');
+    let simulationFrame = null;
+    let simTicks = 0;
+    let zoom = 1;
+    let panX = 0;
+    let panY = 0;
+    let panning = false;
+    let panPointerId = null;
+    let panOrigin = null;
+
+    function el(tag, attrs) {
+        const item = document.createElementNS(NS, tag);
+        Object.entries(attrs || {}).forEach(([key, value]) => item.setAttribute(key, value));
+        return item;
+    }
+    function color(type) {
+        if (type === 'CHARACTER') return '#ff4d70';
+        if (type === 'EVENT') return '#e8ae58';
+        return '#65adff';
+    }
+    function shortLabel(text, max = 25) { text = String(text || ''); return text.length > max ? text.slice(0, max - 1) + '…' : text; }
+    function svgPoint(clientX, clientY) {
+        const point = svg.createSVGPoint(); point.x = clientX; point.y = clientY;
+        return point.matrixTransform(svg.getScreenCTM().inverse());
+    }
+    function applyViewportTransform() {
+        world.setAttribute('transform', `translate(${panX} ${panY}) scale(${zoom})`);
+        if (zoomLabel) zoomLabel.textContent = `${Math.round(zoom * 100)} %`;
+        const fitScale = Math.min(viewport.clientWidth / WORLD_WIDTH, viewport.clientHeight / WORLD_HEIGHT) || 1;
+        viewport.style.backgroundSize = `${32 * zoom * fitScale}px ${32 * zoom * fitScale}px`;
+        viewport.style.backgroundPosition = `${panX * fitScale}px ${panY * fitScale}px`;
+    }
+    function zoomAt(nextZoom, focusX = WORLD_WIDTH / 2, focusY = WORLD_HEIGHT / 2) {
+        nextZoom = Math.max(0.08, Math.min(3.5, nextZoom));
+        const worldX = (focusX - panX) / zoom;
+        const worldY = (focusY - panY) / zoom;
+        zoom = nextZoom;
+        panX = focusX - worldX * zoom;
+        panY = focusY - worldY * zoom;
+        applyViewportTransform();
+    }
+    function visibleGraphNodes() {
+        return graph.nodes.filter(node => !activeTypeFilter || node.type === activeTypeFilter);
+    }
+    function visibleNodeIds() {
+        return new Set(visibleGraphNodes().map(node => node.id));
+    }
+    function fitToGraph() {
+        const visible = visibleGraphNodes();
+        if (!visible.length) { zoom = 1; panX = 0; panY = 0; applyViewportTransform(); return; }
+        const positions = visible.map(node => positionById.get(node.id)).filter(Boolean);
+        const minX = Math.min(...positions.map(p => p.x));
+        const maxX = Math.max(...positions.map(p => p.x));
+        const minY = Math.min(...positions.map(p => p.y));
+        const maxY = Math.max(...positions.map(p => p.y));
+        const rangeX = Math.max(220, maxX - minX + 220);
+        const rangeY = Math.max(180, maxY - minY + 160);
+        zoom = Math.max(0.08, Math.min(1.25, 900 / rangeX, 520 / rangeY));
+        const centerX = (minX + maxX) / 2;
+        const centerY = (minY + maxY) / 2;
+        panX = WORLD_WIDTH / 2 - centerX * zoom;
+        panY = WORLD_HEIGHT / 2 - centerY * zoom;
+        applyViewportTransform();
+    }
+    function applyGraphState() {
+        const visibleIds = visibleNodeIds();
+        if (selectedNodeId !== null && !visibleIds.has(selectedNodeId)) selectedNodeId = null;
+        const relatedIds = new Set();
+        if (selectedNodeId !== null) {
+            relatedIds.add(selectedNodeId);
+            graph.connections.forEach(connection => {
+                if (connection.source === selectedNodeId) relatedIds.add(connection.target);
+                if (connection.target === selectedNodeId) relatedIds.add(connection.source);
+            });
+        }
+        nodeElements.forEach((group, id) => {
+            const visible = visibleIds.has(id);
+            group.style.display = visible ? '' : 'none';
+            group.style.opacity = selectedNodeId !== null && visible && !relatedIds.has(id) ? '.13' : '1';
+            group.classList.toggle('is-selected', selectedNodeId === id);
+            group.classList.toggle('is-related', selectedNodeId !== null && id !== selectedNodeId && relatedIds.has(id));
+            group.setAttribute('aria-pressed', selectedNodeId === id ? 'true' : 'false');
+        });
+        edgeElements.forEach(({connection, line, label}) => {
+            const visible = visibleIds.has(connection.source) && visibleIds.has(connection.target);
+            const highlighted = selectedNodeId !== null && (connection.source === selectedNodeId || connection.target === selectedNodeId);
+            line.style.display = visible ? '' : 'none';
+            label.style.display = visible ? '' : 'none';
+            line.style.opacity = selectedNodeId === null ? '1' : (highlighted ? '1' : '.06');
+            label.style.opacity = selectedNodeId === null ? '1' : (highlighted ? '1' : '.04');
+            line.classList.toggle('is-highlighted', highlighted);
+            if (highlighted) {
+                line.setAttribute('stroke', '#ff6682');
+                line.setAttribute('stroke-width', '2.8');
+            } else {
+                line.setAttribute('stroke', connection.kind === 'custom' ? '#c16b82' : '#66616f');
+                line.setAttribute('stroke-width', connection.kind === 'custom' ? '2.1' : '1.4');
+            }
+        });
+        filterButtons.forEach(button => {
+            const pressed = activeTypeFilter === null || activeTypeFilter === button.dataset.filterType;
+            button.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+        });
+    }
+    function toggleNodeSelection(nodeId) {
+        selectedNodeId = selectedNodeId === nodeId ? null : nodeId;
+        applyGraphState();
+    }
+    filterButtons.forEach(button => button.addEventListener('click', () => {
+        const type = button.dataset.filterType;
+        activeTypeFilter = activeTypeFilter === type ? null : type;
+        selectedNodeId = null;
+        applyGraphState();
+        fitToGraph();
+    }));
+    graph.connections.forEach(connection => {
+        if (!nodeById.has(connection.source) || !nodeById.has(connection.target)) return;
+        const line = el('line', {stroke: connection.kind === 'custom' ? '#c16b82' : '#66616f', 'stroke-width': connection.kind === 'custom' ? '2.1' : '1.4', 'stroke-opacity': connection.kind === 'custom' ? '.85' : '.58'});
+        const label = el('text', {fill: '#aaa5b3', 'font-size': '11', 'text-anchor': 'middle', 'paint-order': 'stroke', stroke: '#0e0d12', 'stroke-width': '3', 'stroke-linejoin': 'round'});
+        label.textContent = shortLabel(connection.label || 'relacionado', 26);
+        edgeLayer.append(line, label);
+        edgeElements.push({connection, line, label});
+    });
+    function renderEdges() {
+        edgeElements.forEach(({connection, line, label}) => {
+            const a = positionById.get(connection.source), b = positionById.get(connection.target);
+            if (!a || !b) return;
+            line.setAttribute('x1', a.x); line.setAttribute('y1', a.y); line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+            label.setAttribute('x', (a.x + b.x) / 2); label.setAttribute('y', (a.y + b.y) / 2 - 7);
+        });
+        applyGraphState();
+    }
+    function renderNodePosition(id) {
+        const p = positionById.get(id), node = nodeElements.get(id);
+        if (node && p) node.setAttribute('transform', `translate(${p.x}, ${p.y})`);
+    }
+    async function savePositions() {
+        const csrf = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+        await Promise.all(graph.nodes.map(node => {
+            const p = positionById.get(node.id);
+            return fetch(`/red-conceptual/nodos/${node.id}/posicion/`, {
+                method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrf || ''},
+                body: JSON.stringify({x: p.x, y: p.y}), credentials: 'same-origin'
+            }).catch(() => null);
+        }));
+    }
+    graph.nodes.forEach(node => {
+        const group = el('g', {cursor: 'grab', 'data-node-id': node.id, class: 'graph-node', tabindex: '0', role: 'button', 'aria-label': node.label});
+        const c = color(node.type);
+        const halo = el('circle', {r: 40, fill: c, 'fill-opacity': '.035'});
+        const circle = el('circle', {r: 31, fill: c, 'fill-opacity': '.12', stroke: c, 'stroke-width': '1.7'});
+        const core = el('circle', {r: 3, cx: 0, cy: 0, fill: c, 'fill-opacity': '.9'});
+        const initial = el('text', {x: 0, y: 6, fill: c, 'font-size': '19', 'font-weight': '750', 'text-anchor': 'middle', 'pointer-events': 'none'});
+        initial.textContent = node.type === 'CHARACTER' ? '✦' : node.type === 'EVENT' ? '◷' : '⌖';
+        const name = el('text', {x: 0, y: 52, fill: '#f0eef4', 'font-size': '13', 'font-weight': '650', 'text-anchor': 'middle', class: 'graph-node-label', 'pointer-events': 'none'});
+        name.textContent = shortLabel(node.label, 24);
+        group.append(halo, circle, core, initial, name);
+        nodeLayer.append(group);
+        nodeElements.set(node.id, group);
+        group.addEventListener('pointerdown', event => {
+            if (event.button !== 0) return;
+            event.preventDefault(); event.stopPropagation();
+            group.dataset.startClientX = String(event.clientX);
+            group.dataset.startClientY = String(event.clientY);
+            group.setPointerCapture(event.pointerId); dragging.add(node.id); group.style.cursor = 'grabbing';
+            const point = svg.createSVGPoint(); point.x = event.clientX; point.y = event.clientY;
+            const transformed = point.matrixTransform(world.getScreenCTM().inverse());
+            group.dataset.offsetX = transformed.x - positionById.get(node.id).x;
+            group.dataset.offsetY = transformed.y - positionById.get(node.id).y;
+        });
+        group.addEventListener('pointermove', event => {
+            if (!dragging.has(node.id)) return;
+            const point = svg.createSVGPoint(); point.x = event.clientX; point.y = event.clientY;
+            const transformed = point.matrixTransform(world.getScreenCTM().inverse());
+            const p = {x: transformed.x - Number(group.dataset.offsetX), y: transformed.y - Number(group.dataset.offsetY)};
+            positionById.set(node.id, p); renderNodePosition(node.id); renderEdges();
+        });
+        const finishDrag = async event => {
+            if (!dragging.has(node.id)) return;
+            dragging.delete(node.id); group.style.cursor = 'grab';
+            const moved = Math.hypot(
+                event.clientX - Number(group.dataset.startClientX || event.clientX),
+                event.clientY - Number(group.dataset.startClientY || event.clientY)
+            ) >= 6;
+            if (moved) {
+                runSimulation(false);
+                await savePositions();
+            } else if (event.type !== 'pointercancel') {
+                toggleNodeSelection(node.id);
+            }
+        };
+        group.addEventListener('pointerup', finishDrag);
+        group.addEventListener('pointercancel', finishDrag);
+        group.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleNodeSelection(node.id);
+            }
+        });
+        renderNodePosition(node.id);
+    });
+    if (graph.nodes.length === 0) {
+        const empty = el('text', {x: 500, y: 315, fill: '#a0a0ad', 'font-size': '24', 'text-anchor': 'middle'});
+        empty.textContent = 'Crea personajes, acontecimientos o lugares para iniciar tu red'; nodeLayer.appendChild(empty);
+    }
+    renderEdges();
+    applyGraphState();
+
+    function resolveNodeCollisions(points, minimumDistance) {
+        for (let pass = 0; pass < 10; pass++) {
+            for (let i = 0; i < points.length; i++) for (let j = i + 1; j < points.length; j++) {
+                const a = points[i], b = points[j];
+                const pa = positionById.get(a.id), pb = positionById.get(b.id);
+                let dx = pb.x - pa.x, dy = pb.y - pa.y;
+                let distance = Math.hypot(dx, dy);
+                if (distance >= minimumDistance) continue;
+                if (distance < 0.01) {
+                    const angle = (i * 2.399963 + j * 1.618034) % (Math.PI * 2);
+                    dx = Math.cos(angle); dy = Math.sin(angle); distance = 1;
+                }
+                const overlap = (minimumDistance - distance) * 0.52;
+                const nx = dx / distance, ny = dy / distance;
+                const aFixed = dragging.has(a.id), bFixed = dragging.has(b.id);
+                if (aFixed && bFixed) continue;
+                if (aFixed) { pb.x += nx * overlap * 2; pb.y += ny * overlap * 2; }
+                else if (bFixed) { pa.x -= nx * overlap * 2; pa.y -= ny * overlap * 2; }
+                else { pa.x -= nx * overlap; pa.y -= ny * overlap; pb.x += nx * overlap; pb.y += ny * overlap; }
+            }
+        }
+    }
+    function runSimulation(fitAfter = false) {
+        if (simulationFrame) cancelAnimationFrame(simulationFrame);
+        const activeNodes = visibleGraphNodes();
+        if (activeNodes.length < 2) { if (fitAfter) fitToGraph(); return; }
+        const repulsion = Number(repulsionInput?.value || 55) / 100;
+        const separation = Number(separationInput?.value || 48);
+        const minimumDistance = 150 + separation * 0.35;
+        const targetDistance = minimumDistance + 40;
+        simTicks = 0;
+        velocities.forEach(v => { v.x *= 0.18; v.y *= 0.18; });
+        function tick() {
+            simTicks += 1;
+            const points = visibleGraphNodes();
+            const activeIds = new Set(points.map(node => node.id));
+            const forces = new Map(points.map(n => [n.id, {x: 0, y: 0}]));
+            for (let i = 0; i < points.length; i++) for (let j = i + 1; j < points.length; j++) {
+                const a = points[i], b = points[j];
+                const pa = positionById.get(a.id), pb = positionById.get(b.id);
+                let dx = pb.x - pa.x, dy = pb.y - pa.y;
+                let distance = Math.hypot(dx, dy);
+                if (distance < 0.01) { const angle = (i * 2.399963 + j * 1.618034) % (Math.PI * 2); dx = Math.cos(angle); dy = Math.sin(angle); distance = 1; }
+                const nx = dx / distance, ny = dy / distance;
+                const repulsionRange = minimumDistance * (1.6 + repulsion * 1.7);
+                const pressure = distance < minimumDistance
+                    ? (minimumDistance - distance) * (0.30 + repulsion * 0.48)
+                    : distance < repulsionRange
+                        ? (repulsionRange - distance) * (0.015 + repulsion * 0.075)
+                        : repulsion * 3.5 / Math.max(distance, 1);
+                forces.get(a.id).x -= nx * pressure; forces.get(a.id).y -= ny * pressure;
+                forces.get(b.id).x += nx * pressure; forces.get(b.id).y += ny * pressure;
+            }
+            graph.connections.forEach(edge => {
+                if (!activeIds.has(edge.source) || !activeIds.has(edge.target)) return;
+                const pa = positionById.get(edge.source), pb = positionById.get(edge.target);
+                if (!pa || !pb) return;
+                const dx = pb.x - pa.x, dy = pb.y - pa.y;
+                const distance = Math.hypot(dx, dy) || 0.01;
+                const force = (distance - targetDistance) * 0.0004;
+                forces.get(edge.source).x += dx * force; forces.get(edge.source).y += dy * force;
+                forces.get(edge.target).x -= dx * force; forces.get(edge.target).y -= dy * force;
+            });
+            points.forEach((node, index) => {
+                if (dragging.has(node.id)) return;
+                const p = positionById.get(node.id), v = velocities.get(node.id), f = forces.get(node.id);
+                const breezeX = Math.sin(simTicks * .035 + index * 1.7) * .006;
+                const breezeY = Math.cos(simTicks * .029 + index * 1.2) * .006;
+                v.x = (v.x + f.x * .16 + breezeX) * .74;
+                v.y = (v.y + f.y * .16 + breezeY) * .74;
+                p.x += Math.max(-5, Math.min(5, v.x));
+                p.y += Math.max(-5, Math.min(5, v.y));
+            });
+            resolveNodeCollisions(points, minimumDistance);
+            points.forEach(node => renderNodePosition(node.id));
+            renderEdges();
+            if (simTicks < 220) simulationFrame = requestAnimationFrame(tick);
+            else { simulationFrame = null; if (fitAfter) fitToGraph(); savePositions(); }
+        }
+        simulationFrame = requestAnimationFrame(tick);
+    }
+
+    viewport.addEventListener('pointerdown', event => {
+        if (event.button !== 0 || event.target.closest?.('.graph-node')) return;
+        panning = true; panPointerId = event.pointerId; viewport.setPointerCapture(event.pointerId);
+        panOrigin = {point: svgPoint(event.clientX, event.clientY), x: panX, y: panY};
+        viewport.classList.add('is-panning');
+    });
+    viewport.addEventListener('pointermove', event => {
+        if (!panning || event.pointerId !== panPointerId) return;
+        const point = svgPoint(event.clientX, event.clientY);
+        panX = panOrigin.x + point.x - panOrigin.point.x;
+        panY = panOrigin.y + point.y - panOrigin.point.y;
+        applyViewportTransform();
+    });
+    function finishPan(event) {
+        if (!panning || event.pointerId !== panPointerId) return;
+        panning = false; panPointerId = null; panOrigin = null; viewport.classList.remove('is-panning');
+    }
+    viewport.addEventListener('pointerup', finishPan);
+    viewport.addEventListener('pointercancel', finishPan);
+    viewport.addEventListener('wheel', event => {
+        event.preventDefault();
+        const point = svgPoint(event.clientX, event.clientY);
+        zoomAt(zoom * Math.exp(-event.deltaY * 0.0014), point.x, point.y);
+    }, {passive: false});
+    zoomInButton?.addEventListener('click', () => zoomAt(zoom * 1.2));
+    zoomOutButton?.addEventListener('click', () => zoomAt(zoom / 1.2));
+    fitButton?.addEventListener('click', fitToGraph);
+    arrangeButton?.addEventListener('click', () => runSimulation(true));
+    separationInput?.addEventListener('input', () => runSimulation(false));
+    repulsionInput?.addEventListener('input', () => runSimulation(false));
+    fitToGraph();
+    // Evita que los nodos se superpongan y centra la red.
+    if (graph.nodes.length > 1) runSimulation(true);
+    window.addEventListener('resize', applyViewportTransform);
+    // El ancho del lienzo también cambia cuando se pliega el sidebar, sin redimensionar la ventana.
+    if ('ResizeObserver' in window) {
+        const graphResizeObserver = new ResizeObserver(() => applyViewportTransform());
+        graphResizeObserver.observe(viewport);
+    }
+})();
+</script>
+{% endblock %}

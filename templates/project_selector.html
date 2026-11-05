@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seleccionar proyecto — Omniverse</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="project-selector-page">
+<main class="project-selector">
+    <div class="selector-topbar">
+        <div class="project-selector-logo"><img src="{% static 'images/omniverse-logo.png' %}" alt="" class="selector-logo-mark"><span>OMNIVERSE</span></div>
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="subtle-button" type="submit">Cerrar sesión</button></form>
+    </div>
+    <div class="project-selector-header">
+        <p class="dashboard-eyebrow">ESPACIO DE TRABAJO</p>
+        <h1>Mis proyectos</h1>
+        <p>Selecciona un proyecto para continuar construyendo tu universo.</p>
+    </div>
+    <div class="project-grid">
+        {% for project in projects %}
+            <a href="{% url 'select_project' project.id %}" class="project-card">
+                <div class="project-card-icon">✦</div>
+                <div class="project-card-content">
+                    <h2>{{ project.name }}</h2>
+                    <p>{{ project.description|default:'Sin descripción.' }}</p>
+                    <span class="project-card-meta">Actualizado {{ project.updated_at|date:'d/m/Y' }}</span>
+                </div>
+            </a>
+        {% empty %}
+            <div class="empty-state">
+                <div class="empty-icon">✦</div>
+                <h2>Aún no tienes proyectos</h2>
+                <p>Crea tu primer proyecto para comenzar a construir un universo.</p>
+                <a href="{% url 'create_project' %}" class="primary-button">Crear mi primer proyecto</a>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="selector-footer">
+        {% if user.is_subscribed %}
+            <span>Cuenta suscrita · Puedes crear proyectos ilimitados</span>
+            {% if projects %}<a class="primary-button" href="{% url 'create_project' %}">Nuevo proyecto</a>{% endif %}
+        {% else %}
+            <span>Plan gratuito · Un proyecto incluido</span>
+            <a class="primary-button" href="{{ subscription_url }}">Suscribirse ↗</a>
+        {% endif %}
+    </div>
+</main>
+</body>
+</html>

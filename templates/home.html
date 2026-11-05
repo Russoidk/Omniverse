@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Centro de Comando — Omniverse{% endblock %}
+{% block content %}
+<div class="dashboard-header page-heading">
+    <div><p class="dashboard-eyebrow">CENTRO DE COMANDO · PROYECTO ACTIVO</p><h1>{{ project.name }}</h1>{% if project.description %}<p class="dashboard-description">{{ project.description }}</p>{% else %}<p class="dashboard-description">Tu espacio para organizar personajes, acontecimientos y las conexiones de tu universo.</p>{% endif %}</div>
+    <button type="button" class="secondary-button" onclick="openSettings()">⚙ Ajustes del proyecto</button>
+</div>
+{% if project.dashboard_show_stats %}<div class="dashboard-stats"><div><span>{{ character_count }}</span><small>Personajes</small></div><div><span>{{ event_count }}</span><small>Acontecimientos</small></div><div><span>{{ place_count }}</span><small>Lugares</small></div></div>{% endif %}
+{% if project.dashboard_show_module_cards %}<div class="dashboard-grid">
+    <a href="{% url 'characters' %}" class="dashboard-card"><div class="dashboard-card-icon">✦</div><div><h2>Personajes</h2><p>Gestiona fichas, retratos, rasgos, historia personal y relaciones entre personajes.</p></div><span class="dashboard-card-footer">{{ character_count }} fichas <span>→</span></span></a>
+    <a href="{% url 'timeline' %}" class="dashboard-card"><div class="dashboard-card-icon">◷</div><div><h2>Cronología</h2><p>Ordena acontecimientos, vincula personas y lugares y relaciona causas y consecuencias.</p></div><span class="dashboard-card-footer">{{ event_count }} acontecimientos <span>→</span></span></a>
+    <a href="{% url 'concept_map' %}" class="dashboard-card"><div class="dashboard-card-icon">⌘</div><div><h2>Red conceptual</h2><p>Explora visualmente las relaciones que unen a las entidades de tu universo.</p></div><span class="dashboard-card-footer">Abrir mapa <span>→</span></span></a>
+</div>{% endif %}
+{% if project.dashboard_show_recent_events %}<section class="dashboard-recent content-panel"><div class="panel-heading"><h2>Actividad en la cronología</h2><a class="text-link" href="{% url 'timeline' %}">Ver cronología completa →</a></div>
+    {% for event in recent_events %}<a class="recent-event-row" href="{% url 'event_detail' event.pk %}"><span class="recent-event-date">{{ event.display_date }}</span><span class="recent-event-name">{{ event.title }}{% if event.automatic %}<small> · Automático</small>{% endif %}</span><span class="recent-event-type">{{ event.event_type|default:'Acontecimiento' }}</span></a>{% empty %}<p class="empty-inline">Todavía no hay acontecimientos. Al completar la fecha de nacimiento de un personaje se añadirá automáticamente su nacimiento.</p>{% endfor %}
+</section>{% endif %}
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Ajustes del proyecto — Omniverse{% endblock %}
+{% block content %}
+<div class="page-heading compact-heading">
+    <div><a href="{% url 'home' %}" class="back-link">← Volver al Centro de Comando</a><p class="dashboard-eyebrow">CONFIGURACIÓN DEL ESPACIO</p><h1>Ajustes del proyecto</h1><p class="muted">Personaliza el nombre del proyecto, las eras de tu cronología y la información que aparece al entrar.</p></div>
+</div>
+<form method="post" class="project-settings-layout">
+    {% csrf_token %}
+    <section class="content-panel settings-form-panel">
+        <div class="panel-heading"><h2>Identidad del proyecto</h2><span class="chip">General</span></div>
+        {% for field in form %}{% if field.name == 'name' or field.name == 'description' %}<div class="form-field">{{ field.label_tag }}{{ field }}{% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}</div>{% endif %}{% endfor %}
+    </section>
+    <section class="content-panel settings-form-panel">
+        <div class="panel-heading"><h2>Eras históricas</h2><span class="chip">Cronología</span></div>
+        <p class="form-help">Elige cómo se llaman las dos eras y cómo se muestran abreviadas en las fechas. Esto cambia la presentación, no altera el orden cronológico.</p>
+        <div class="era-settings-grid">
+            <div class="era-settings-card"><span class="era-settings-kicker">ERA ANTERIOR</span>{% for field in form %}{% if field.name == 'era_bc_name' or field.name == 'era_bc_abbreviation' %}<div class="form-field">{{ field.label_tag }}{{ field }}{% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}</div>{% endif %}{% endfor %}<p class="form-help">Vista previa: 450 <strong>{{ form.instance.era_bc_abbreviation }}</strong></p></div>
+            <div class="era-settings-card"><span class="era-settings-kicker">ERA POSTERIOR</span>{% for field in form %}{% if field.name == 'era_ad_name' or field.name == 'era_ad_abbreviation' %}<div class="form-field">{{ field.label_tag }}{{ field }}{% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}</div>{% endif %}{% endfor %}<p class="form-help">Vista previa: 2026 <strong>{{ form.instance.era_ad_abbreviation }}</strong></p></div>
+        </div>
+    </section>
+    <section class="content-panel settings-form-panel">
+        <div class="panel-heading"><h2>Centro de Comando</h2><span class="chip">Personalización</span></div>
+        <p class="form-help">Elige qué secciones quieres ver en la pantalla principal. Puedes volver a activarlas cuando lo necesites.</p>
+        {% for field in form %}{% if field.name == 'dashboard_show_stats' or field.name == 'dashboard_show_module_cards' or field.name == 'dashboard_show_recent_events' %}<label class="settings-toggle-row"><span><strong>{{ field.label }}</strong>{% if field.name == 'dashboard_show_stats' %}<small>Muestra los contadores de personajes, acontecimientos y lugares.</small>{% elif field.name == 'dashboard_show_module_cards' %}<small>Muestra las tarjetas de acceso rápido a cada módulo.</small>{% else %}<small>Muestra los acontecimientos modificados recientemente.</small>{% endif %}</span>{{ field }}</label>{% endif %}{% endfor %}
+    </section>
+    <div class="form-actions settings-save-row"><a href="{% url 'home' %}" class="secondary-button">Cancelar</a><button type="submit" class="primary-button">Guardar ajustes</button></div>
+</form>
+{% endblock %}

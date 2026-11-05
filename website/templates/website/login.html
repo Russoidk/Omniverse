@@ -1,0 +1,14 @@
+{% extends 'website/form_shell.html' %}
+{% block title %}Iniciar sesión — Omniverse{% endblock %}
+{% block auth_heading %}Vuelve al universo que estabas creando.{% endblock %}
+{% block auth_description %}Tus proyectos, tus personajes y todas sus conexiones te esperan.{% endblock %}
+{% block form_content %}
+<div class="form-kicker">QUÉ BUENO VERTE DE NUEVO</div><h2>Iniciar sesión</h2><p class="form-intro">Ingresa con el correo de tu cuenta Omniverse.</p>
+<form method="post" class="site-form" novalidate>{% csrf_token %}
+  {% if form.non_field_errors %}<div class="form-errors">El correo o la contraseña no son correctos. Inténtalo nuevamente.</div>{% endif %}
+  {% for field in form %}<div class="site-field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</div>{% endfor %}
+  <button type="submit" class="button-primary button-full">Entrar a mi cuenta <span>→</span></button>
+</form>
+<p class="form-switch">¿Todavía no tienes una cuenta? <a href="{% url 'register' %}">Créala gratis</a></p>
+<div class="auth-callout"><span>✦</span><p>La suscripción es una simulación para probar las funciones de Omniverse. No hay cobros reales.</p></div>
+{% endblock %}

@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}Eliminar acontecimiento — Omniverse{% endblock %}
+{% block content %}<div class="confirm-panel"><p class="dashboard-eyebrow">CONFIRMAR ACCIÓN</p><h1>Eliminar «{{ event.title }}»</h1><p class="muted">Se eliminarán sus vínculos con personajes, lugares y otros acontecimientos. Los eventos automáticos de nacimiento no se pueden eliminar desde aquí.</p><form method="post" class="form-actions">{% csrf_token %}<a href="{% url 'event_detail' event.pk %}" class="secondary-button">Cancelar</a><button class="danger-button" type="submit">Eliminar acontecimiento</button></form></div>{% endblock %}

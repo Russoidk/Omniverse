@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block title %}Cambiar proyecto — Omniverse{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="dashboard-eyebrow">ESPACIO DE TRABAJO</p><h1>Cambiar proyecto</h1><p class="muted">Selecciona uno de tus proyectos para abrirlo.</p></div><a href="{% url 'create_project_from_settings' %}" class="primary-button">＋ Nuevo proyecto</a></div>
+<div class="project-grid">{% for project in projects %}<a class="project-card" href="{% url 'select_project' project.pk %}"><div class="project-card-icon">✦</div><div class="project-card-content"><h2>{{ project.name }}</h2><p>{{ project.description|default:'Sin descripción.' }}</p></div></a>{% empty %}<div class="empty-state"><h2>No tienes proyectos</h2><p>Crea tu primer proyecto para empezar.</p><a href="{% url 'create_project' %}" class="primary-button">Crear proyecto</a></div>{% endfor %}</div>
+{% endblock %}

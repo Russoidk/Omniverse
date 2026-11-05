@@ -1,0 +1,17 @@
+{% extends 'project_base.html' %}
+{% block title %}Crear proyecto — Omniverse{% endblock %}
+{% block content %}
+<main class="auth-page project-create-page">
+    <a class="back-link" href="{% url 'home' %}">← Volver a mis proyectos</a>
+    <div class="auth-brand">OMNIVERSE</div>
+    <h1>Crear nuevo proyecto</h1>
+    <p class="muted">Cada proyecto es un espacio de trabajo independiente para un universo o una historia.</p>
+    <form method="post" class="form-stack">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}<div class="form-field">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endfor %}
+        <button type="submit" class="primary-button">Crear proyecto</button>
+    </form>
+    <p class="auth-note">{% if user.is_subscribed %}Tu cuenta puede crear proyectos ilimitados.{% else %}Las cuentas sin suscripción pueden tener un proyecto.{% endif %}</p>
+</main>
+{% endblock %}

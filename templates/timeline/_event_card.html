@@ -1,0 +1,26 @@
+<article class="timeline-item {% if event.same_date_count > 1 %}has-same-date{% endif %} {% if nested %}timeline-item-nested{% endif %}">
+    <div class="timeline-marker" aria-hidden="true"></div>
+    <div class="timeline-date">{{ event.display_date }}<span>{{ event.get_date_type_display }}</span></div>
+    <div class="timeline-event-card {% if event.span_marker == 'START' %}span-boundary-start{% elif event.span_marker == 'END' %}span-boundary-end{% endif %}">
+        <div class="timeline-event-top">
+            <div>
+                <div class="chip-row">
+                    {% if event.span_marker == 'START' %}<span class="chip chip-span-start">Inicio del lapso</span>{% elif event.span_marker == 'END' %}<span class="chip chip-span-end">Final del lapso</span>{% endif %}
+                    {% if event.event_type and not event.span_marker %}<span class="chip">{{ event.event_type }}</span>{% endif %}
+                    {% if event.automatic and not event.span_marker %}<span class="chip chip-automatic">Automático</span>{% endif %}
+                    {% if event.same_date_count > 1 and not event.span_marker %}<span class="chip chip-order">Orden {{ event.same_date_position|add:1 }} de {{ event.same_date_count }}</span>{% endif %}
+                </div>
+                <h2><a href="{% url 'event_detail' event.pk %}">{{ event.title }}</a></h2>
+            </div>
+            {% if not event.automatic %}<a class="icon-link" href="{% url 'event_edit' event.pk %}" aria-label="Editar acontecimiento" title="Editar acontecimiento">✎</a>{% endif %}
+        </div>
+        {% if event.description %}<p class="muted event-description">{{ event.description|linebreaksbr }}</p>{% endif %}
+        <div class="event-linked-items">{% for link in event.character_links.all %}<span>◉ {{ link.character.full_name }}</span>{% endfor %}{% for link in event.place_links.all %}<span>⌖ {{ link.place.name }}</span>{% endfor %}</div>
+        {% if event.same_date_count > 1 and not event.span_marker %}
+            <div class="timeline-order-controls"><span>Orden entre acontecimientos de esta misma fecha</span>
+                <form method="post" action="{% url 'event_move_order' event.pk 'up' %}">{% csrf_token %}<button class="timeline-order-button" type="submit" title="Mover hacia arriba" aria-label="Mover hacia arriba" {% if event.same_date_position == 0 %}disabled{% endif %}>↑</button></form>
+                <form method="post" action="{% url 'event_move_order' event.pk 'down' %}">{% csrf_token %}<button class="timeline-order-button" type="submit" title="Mover hacia abajo" aria-label="Mover hacia abajo" {% if event.same_date_position|add:1 == event.same_date_count %}disabled{% endif %}>↓</button></form>
+            </div>
+        {% endif %}
+    </div>
+</article>

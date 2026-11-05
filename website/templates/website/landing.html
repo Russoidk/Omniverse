@@ -1,0 +1,53 @@
+{% extends 'website/base_public.html' %}
+{% load static %}
+{% block title %}Omniverse — Cada idea merece su universo{% endblock %}
+{% block content %}
+<section class="hero-section site-container">
+  <div class="hero-copy">
+    <div class="eyebrow"><span class="status-dot"></span> TU ESPACIO CREATIVO, SIN LÍMITES</div>
+    <h1>Cada idea merece<br>su propio <span class="gradient-text">universo.</span></h1>
+    <p class="hero-description">Construye mundos, descubre conexiones y da vida a tus historias. Omniverse reúne personajes, cronologías, lugares y conceptos en un solo espacio.</p>
+    <div class="hero-actions">
+      <a class="button-primary" href="{% url 'register' %}">Crear mi cuenta <span aria-hidden="true">↗</span></a>
+      <a class="button-secondary" href="{% url 'landing' %}#funciones"><span class="play-icon">↓</span> Explorar funciones</a>
+    </div>
+    <div class="hero-footnote"><span class="tiny-check">✓</span> Organiza tu creatividad en un solo lugar <span class="hero-separator">·</span> No necesitas conexión a Internet para usar la demo local.</div>
+  </div>
+  <div class="hero-art" aria-label="Vista ilustrativa del espacio de trabajo de Omniverse">
+    <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+    <div class="orb orb-main"></div><div class="orb orb-small orb-pink"></div><div class="orb orb-small orb-lilac"></div>
+    <div class="floating-note note-top"><span class="note-symbol note-symbol-pink">✦</span><div><strong>Un mundo por descubrir</strong><small>Ideas conectadas</small></div></div>
+    <div class="floating-note note-bottom"><span class="note-symbol note-symbol-violet">⌘</span><div><strong>Todo tiene una conexión</strong><small>Personajes · Lugares · Eventos</small></div></div>
+    <div class="hero-logo-ring"><img src="{% static 'images/omniverse-logo.png' %}" alt="Logo de Omniverse"></div>
+    <div class="art-spark spark-one">✧</div><div class="art-spark spark-two">✦</div><div class="art-spark spark-three">·</div>
+  </div>
+</section>
+
+<section class="proof-strip site-container" aria-label="Características principales">
+  <div><span class="proof-icon">◈</span><span><strong>Tu mundo, tus reglas</strong><small>Proyectos independientes</small></span></div>
+  <div><span class="proof-icon">⌘</span><span><strong>Ideas conectadas</strong><small>Una red de relaciones</small></span></div>
+  <div><span class="proof-icon">↗</span><span><strong>De la idea al detalle</strong><small>Exportaciones con estilo</small></span></div>
+</section>
+
+<section class="features-section site-container" id="funciones">
+  <div class="section-heading"><span class="eyebrow">UN SISTEMA, MUCHAS POSIBILIDADES</span><h2>Todo tu universo.<br><span class="muted-heading">En un solo lugar.</span></h2><p>Menos pestañas abiertas. Más espacio para imaginar, planificar y crear.</p></div>
+  <div class="feature-grid">
+    <article class="feature-card feature-card-tall"><div class="feature-icon icon-pink"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.5-4 2.8-6 6.5-6s6 2 6.5 6M16 5.5a3.5 3.5 0 0 1 0 6.7M18 15c2 .7 3.2 2.3 3.5 5"/></svg></div><h3>Personajes con profundidad</h3><p>Construye fichas completas, registra sus historias y sigue sus relaciones. Cada detalle puede tener un propósito dentro de tu mundo.</p><div class="mini-character"><div class="mini-avatar">✦</div><div><strong>Una historia que contar</strong><span>Perfil · Relaciones · Recuerdos</span></div><span class="mini-chevron">↗</span></div></article>
+    <article class="feature-card"><div class="feature-icon icon-purple"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v16M5 7h6l3 4h5M5 17h6l3-4h5"/><circle cx="5" cy="4" r="2"/><circle cx="19" cy="11" r="2"/><circle cx="19" cy="13" r="2"/></svg></div><h3>Cronologías claras</h3><p>Ordena acontecimientos, crea lapsos y entiende cómo avanza tu historia a través del tiempo.</p><div class="mini-timeline"><span class="timeline-line"></span><i></i><i></i><i></i><i></i><b>ANTES</b><b>AHORA</b></div></article>
+    <article class="feature-card"><div class="feature-icon icon-blue"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="m10.7 7.2-4.3 8.5m6.9-8.5 4.3 8.5M7.5 18h9"/></svg></div><h3>Red conceptual</h3><p>Visualiza vínculos entre personajes, acontecimientos y lugares en un lienzo que crece contigo.</p><div class="mini-network"><span class="network-edge edge-a"></span><span class="network-edge edge-b"></span><span class="network-edge edge-c"></span><i class="network-node node-a">A</i><i class="network-node node-b">B</i><i class="network-node node-c">C</i><i class="network-node node-d">D</i></div></article>
+    <article class="feature-card"><div class="feature-icon icon-gold"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="8.5"/></svg></div><h3>Lugares con contexto</h3><p>Define territorios, ciudades, regiones y espacios que conectan a tus personajes con los acontecimientos.</p><div class="mini-place"><span>⌖</span><div><b>Un lugar importante</b><small>Ubicación · Historia · Habitantes</small></div></div></article>
+  </div>
+</section>
+
+<section class="workflow-section">
+  <div class="site-container workflow-inner"><div class="section-heading align-left"><span class="eyebrow">TU PROCESO CREATIVO</span><h2>Empieza con una idea.<br><span class="gradient-text">Conecta el resto.</span></h2><p>Diseñado para acompañar tanto tus primeras notas como los proyectos que crecen durante años.</p></div>
+    <div class="workflow-steps"><div class="workflow-step"><span>01</span><div><h3>Crea un proyecto</h3><p>Separa cada mundo, novela o idea en su propio espacio.</p></div></div><div class="workflow-step"><span>02</span><div><h3>Agrega sus piezas</h3><p>Define personajes, lugares y acontecimientos a tu ritmo.</p></div></div><div class="workflow-step"><span>03</span><div><h3>Descubre conexiones</h3><p>Relaciona las piezas y exporta tus fichas para consultarlas donde quieras.</p></div></div></div>
+  </div>
+</section>
+
+<section class="plans-section site-container" id="planes"><div class="section-heading"><span class="eyebrow">ELIGE TU ESPACIO</span><h2>La creatividad empieza <span class="gradient-text">aquí.</span></h2><p>Un plan gratuito para comenzar y una suscripción simulada para probar todas las funciones.</p></div>
+  <div class="plans-grid"><article class="plan-card"><div class="plan-top"><span class="plan-name">FREE</span><span class="plan-chip">Para comenzar</span></div><div class="plan-price">$0 <small>/ siempre</small></div><p class="plan-summary">Todo lo esencial para empezar a organizar tus ideas.</p><ul><li><span>✓</span> Un proyecto</li><li><span>✓</span> Fichas y relaciones</li><li><span>✓</span> Cronología y red conceptual</li><li class="feature-muted"><span>×</span> Exportación de fichas y cronología</li></ul><a class="button-secondary button-full" href="{% url 'register' %}">Empezar gratis</a></article>
+  <article class="plan-card plan-card-featured"><div class="plan-glow"></div><div class="plan-top"><span class="plan-name">OMNIVERSE PLUS</span><span class="plan-chip chip-plus">Más posibilidades ✦</span></div><div class="plan-price">Simulado <small>/ sin cobros</small></div><p class="plan-summary">Desbloquea las opciones avanzadas para probar la experiencia completa.</p><ul><li><span>✓</span> Proyectos ilimitados</li><li><span>✓</span> Todas las herramientas de organización</li><li><span>✓</span> Exportaciones PDF y PNG</li><li><span>✓</span> Estado de suscripción en tu cuenta</li></ul>{% if request.user.is_authenticated %}<a class="button-primary button-full" href="{% url 'web_subscription' %}">Probar suscripción <span>↗</span></a>{% else %}<a class="button-primary button-full" href="{% url 'register' %}">Probar Plus <span>↗</span></a>{% endif %}<small class="plan-disclaimer">Para este proyecto escolar no se realizan pagos reales.</small></article></div>
+</section>
+<section class="bottom-cta site-container"><div class="bottom-cta-glow"></div><div><span class="eyebrow">TU PRÓXIMA IDEA TE ESPERA</span><h2>¿Empezamos a crear?</h2><p>Tu espacio creativo está a un paso.</p></div><a class="button-primary" href="{% url 'register' %}">Crear una cuenta <span>↗</span></a></section>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{% if mode == 'create' %}Nuevo personaje{% else %}Editar personaje{% endif %} — Omniverse{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="character-editor" id="character-editor-form">
+    {% csrf_token %}
+    <header class="character-editor-toolbar">
+        <a class="back-link" href="{% if character %}{% url 'character_detail' character.pk %}{% else %}{% url 'characters' %}{% endif %}"><span aria-hidden="true">←</span> Volver</a>
+        <div class="editor-toolbar-actions">
+            {% if character %}<span class="status-pill"><span class="status-dot"></span>{{ character.current_status|default:'Estado sin definir' }}</span>{% endif %}
+            <button class="primary-button" type="submit"><span aria-hidden="true">✓</span> {% if mode == 'create' %}Guardar personaje{% else %}Guardar cambios{% endif %}</button>
+            {% if character %}<a href="{% url 'character_delete' character.pk %}" class="danger-button"><span aria-hidden="true">⌫</span> Eliminar</a>{% endif %}
+        </div>
+    </header>
+    {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+
+    <section class="character-editor-identity">
+        <div class="character-name-fields">
+            <div class="form-field character-name-field">{{ form.full_name.label_tag }}{{ form.full_name }}{% for error in form.full_name.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+            <div class="form-field character-role-field">{{ form.role.label_tag }}{{ form.role }}{% for error in form.role.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+        </div>
+        <div class="quote-portrait-row">
+            <div class="quote-editor-card">
+                <span class="quote-number">01 · VISIÓN DEL MUNDO</span>
+                <div class="form-field">{{ form.quote_1 }}{% for error in form.quote_1.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+                <div class="quote-meta-grid">
+                    <div class="form-field">{{ form.quote_1_author }}{% for error in form.quote_1_author.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+                    <div class="form-field">{{ form.quote_1_context }}{% for error in form.quote_1_context.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+                </div>
+            </div>
+            <div class="portrait-editor-wrap">
+                <div class="portrait-editor-frame" id="portrait-preview-frame">
+                    {% if character and character.image %}<img id="character-image-preview" src="{{ character.image.url }}" alt="Retrato de {{ character.full_name }}">{% else %}<div class="portrait-placeholder" id="portrait-placeholder"><span>✦</span><small>Retrato</small></div><img id="character-image-preview" alt="Vista previa del retrato" hidden>{% endif %}
+                </div>
+                <label class="portrait-upload-button" for="{{ form.image.id_for_label }}"><span aria-hidden="true">↥</span> Cambiar retrato</label>
+                <div class="portrait-upload-input">{{ form.image }}</div>
+                {% for error in form.image.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="quote-editor-card">
+                <span class="quote-number">02 · ESENCIA / CONTRADICCIÓN</span>
+                <div class="form-field">{{ form.quote_2 }}{% for error in form.quote_2.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+                <div class="quote-meta-grid">
+                    <div class="form-field">{{ form.quote_2_author }}{% for error in form.quote_2_author.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+                    <div class="form-field">{{ form.quote_2_context }}{% for error in form.quote_2_context.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+                </div>
+            </div>
+        </div>
+        <p class="editor-helper">El retrato se muestra con recorte centrado para mantener la composición de la ficha. La imagen original no se modifica.</p>
+    </section>
+
+    <section class="form-section character-editor-section">
+        <div class="editor-section-heading"><div><p class="dashboard-eyebrow">01 / PERFIL</p><h2>Datos esenciales</h2></div><span>Identidad, pertenencia y residencia</span></div>
+        <div class="form-grid character-essential-grid">
+            {% for field in form %}{% if field.name == 'birth_date' or field.name == 'age_at_story_start' or field.name == 'species' or field.name == 'current_status' or field.name == 'faction' %}<div class="form-field">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endif %}{% endfor %}
+            <div class="form-field residence-field">{{ form.main_residence.label_tag }}<div class="residence-control">{{ form.main_residence }}<button class="icon-button add-place-trigger" type="button" onclick="openPlaceQuickModal()" aria-label="Crear lugar nuevo" title="Crear lugar nuevo">＋</button></div>{% for error in form.main_residence.errors %}<p class="field-error">{{ error }}</p>{% endfor %}<small class="form-help">¿No existe todavía? Créalo aquí sin perder lo que escribiste.</small><a href="{% url 'places' %}" class="text-link">Administrar todos los lugares ↗</a></div>
+        </div>
+        <p class="form-help">Al guardar una fecha de nacimiento, Omniverse creará o actualizará su acontecimiento en la cronología.</p>
+    </section>
+
+    <section class="form-section character-editor-section">
+        <div class="editor-section-heading"><div><p class="dashboard-eyebrow">02 / PERSONALIDAD</p><h2>Rasgos y preferencias</h2></div><span>Detalles que dan profundidad al personaje</span></div>
+        <div class="form-grid two-col">
+            {% for field in form %}{% if field.name == 'dominant_traits' or field.name == 'destructive_traits' or field.name == 'secret_dream' or field.name == 'likes' or field.name == 'dislikes' or field.name == 'happier_if' %}<div class="form-field {% if field.name == 'secret_dream' or field.name == 'happier_if' %}span-two{% endif %}">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endif %}{% endfor %}
+        </div>
+    </section>
+
+    <section class="form-section character-editor-section">
+        <div class="editor-section-heading"><div><p class="dashboard-eyebrow">03 / TRAYECTORIA</p><h2>Historia personal</h2></div><span>Los párrafos se conservan al exportar</span></div>
+        <div class="form-grid">
+            {% for field in form %}{% if field.name == 'childhood' or field.name == 'adolescence' or field.name == 'adulthood' %}<div class="form-field biography-field">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endif %}{% endfor %}
+        </div>
+    </section>
+    <div class="form-actions editor-bottom-actions"><a href="{% if character %}{% url 'character_detail' character.pk %}{% else %}{% url 'characters' %}{% endif %}" class="secondary-button">Cancelar</a><button class="primary-button" type="submit">✓ Guardar ficha</button></div>
+</form>
+
+<div class="floating-modal-backdrop" id="quick-place-modal" aria-hidden="true">
+    <section class="floating-modal" role="dialog" aria-modal="true" aria-labelledby="quick-place-title">
+        <header class="floating-modal-header"><div><p class="dashboard-eyebrow">LUGARES</p><h2 id="quick-place-title">Crear lugar</h2><p class="muted">Se añadirá a este proyecto y podrás asignarlo como residencia.</p></div><button type="button" class="settings-close" onclick="closePlaceQuickModal()" aria-label="Cerrar">×</button></header>
+        <form id="quick-place-form" class="floating-modal-content form-stack" method="post" action="{% url 'place_quick_create' %}">
+            {% csrf_token %}
+            <div class="form-field"><label for="quick-place-name">Nombre</label><input class="form-control" id="quick-place-name" name="name" maxlength="200" placeholder="Nombre del lugar" required></div>
+            <div class="form-field"><label for="quick-place-type">Tipo</label><input class="form-control" id="quick-place-type" name="type" maxlength="100" placeholder="Ciudad, edificio, planeta…" value="Lugar"></div>
+            <div class="form-field"><label for="quick-place-description">Descripción (opcional)</label><textarea class="form-control" id="quick-place-description" name="description" rows="3" data-autogrow="true" placeholder="Detalles del lugar…"></textarea></div>
+            <p class="field-error" id="quick-place-error" hidden></p>
+            <div class="form-actions"><button type="button" class="secondary-button" onclick="closePlaceQuickModal()">Cancelar</button><button type="submit" class="primary-button">Crear y seleccionar</button></div>
+        </form>
+    </section>
+</div>
+<script>
+(function () {
+    const input = document.getElementById('{{ form.image.id_for_label }}');
+    const preview = document.getElementById('character-image-preview');
+    const placeholder = document.getElementById('portrait-placeholder');
+    if (input && preview) input.addEventListener('change', function () {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        preview.src = url;
+        preview.hidden = false;
+        if (placeholder) placeholder.hidden = true;
+    });
+    const modal = document.getElementById('quick-place-modal');
+    const quickForm = document.getElementById('quick-place-form');
+    const errorBox = document.getElementById('quick-place-error');
+    window.openPlaceQuickModal = function () {
+        modal.classList.add('open'); modal.setAttribute('aria-hidden', 'false');
+        setTimeout(() => document.getElementById('quick-place-name').focus(), 30);
+    };
+    window.closePlaceQuickModal = function () {
+        modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true');
+        errorBox.hidden = true;
+    };
+    modal.addEventListener('click', e => { if (e.target === modal) window.closePlaceQuickModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) window.closePlaceQuickModal(); });
+    quickForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        errorBox.hidden = true;
+        const submit = quickForm.querySelector('[type="submit"]');
+        submit.disabled = true; submit.textContent = 'Creando…';
+        try {
+            const response = await fetch(quickForm.action, {
+                method: 'POST', body: new FormData(quickForm), credentials: 'same-origin',
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+            const data = await response.json();
+            if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo crear el lugar.');
+            const select = document.getElementById('{{ form.main_residence.id_for_label }}');
+            const option = new Option(data.name, data.id, true, true);
+            select.add(option); select.value = String(data.id);
+            quickForm.reset(); document.getElementById('quick-place-type').value = 'Lugar';
+            window.closePlaceQuickModal();
+        } catch (error) {
+            errorBox.textContent = error.message || 'No se pudo crear el lugar.'; errorBox.hidden = false;
+        } finally {
+            submit.disabled = false; submit.textContent = 'Crear y seleccionar';
+        }
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block title %}Crear proyecto — Omniverse{% endblock %}
+{% block content %}
+<div class="page-heading compact-heading"><div><a href="{% url 'home' %}" class="back-link">← Volver al proyecto</a><h1>Crear nuevo proyecto</h1><p class="muted">Al guardar, el proyecto recién creado pasará a ser el activo.</p></div></div>
+<form method="post" class="editor-form"><section class="form-section"><div class="form-stack">{% csrf_token %}{% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}{% for field in form %}<div class="form-field">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endfor %}</div></section><div class="form-actions"><a href="{% url 'home' %}" class="secondary-button">Cancelar</a><button type="submit" class="primary-button">Crear proyecto</button></div></form>
+{% endblock %}

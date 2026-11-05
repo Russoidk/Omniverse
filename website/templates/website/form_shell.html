@@ -1,0 +1,19 @@
+{% extends 'website/base_public.html' %}
+{% load static %}
+{% block content %}
+<section class="auth-layout site-container">
+  <div class="auth-brand-panel">
+    <span class="eyebrow"><span class="status-dot"></span> TU UNIVERSO CREATIVO</span>
+    <div class="auth-brand-lockup" aria-label="Omniverse">
+      <span class="auth-brand-emblem"><img src="{% static 'images/omniverse-logo.png' %}" alt="Logo de Omniverse"></span>
+      <span class="auth-brand-wordmark"><strong>OMNI<span>VERSE</span></strong><small>CREA · ORGANIZA · CONECTA</small></span>
+    </div>
+    <h1>{% block auth_heading %}Bienvenido a Omniverse.{% endblock %}</h1>
+    <p>{% block auth_description %}Un espacio para organizar las ideas que viven en tu imaginación.{% endblock %}</p>
+    <div class="auth-orbits" aria-hidden="true"><i></i><i></i><i></i><span>✦</span></div>
+  </div>
+  <div class="auth-form-panel">
+    {% block form_content %}{% endblock %}
+  </div>
+</section>
+{% endblock %}

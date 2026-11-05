@@ -1,0 +1,11 @@
+{% extends 'project_base.html' %}
+{% block title %}Límite de proyectos — Omniverse{% endblock %}
+{% block content %}
+<main class="auth-page">
+    <div class="auth-brand">OMNIVERSE</div>
+    <p class="dashboard-eyebrow">LÍMITE DE CUENTA</p>
+    <h1>Ya tienes un proyecto</h1>
+    <p class="muted">Las cuentas sin suscripción pueden mantener un único proyecto. La función de suscripción de esta versión es una simulación local y no procesa pagos.</p>
+    <div class="form-actions"><a class="primary-button" href="{% url 'home' %}">Volver a mis proyectos</a></div>
+</main>
+{% endblock %}

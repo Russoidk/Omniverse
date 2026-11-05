@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Personajes — Omniverse{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div><p class="dashboard-eyebrow">{{ project.name }}</p><h1>Personajes</h1><p class="muted">Construye y consulta las fichas de los habitantes de tu universo.</p></div>
+    <div class="heading-actions"><a href="{% url 'places' %}" class="secondary-button">Administrar lugares</a><a href="{% url 'character_create' %}" class="primary-button">＋ Nuevo personaje</a></div>
+</div>
+{% if characters %}
+    <div class="character-grid">
+        {% for character in characters %}
+            <a class="character-card" href="{% url 'character_detail' character.pk %}">
+                <div class="character-card-portrait">
+                    {% if character.image %}<img src="{{ character.image.url }}" alt="Retrato de {{ character.full_name }}">{% else %}<span>✦</span>{% endif %}
+                </div>
+                <div class="character-card-info">
+                    <h2>{{ character.full_name }}</h2>
+                    <p class="character-role">{{ character.role|default:character.species|default:'Personaje' }}</p>
+                    <p class="character-card-description">{{ character.dominant_traits|default:character.current_status|default:'Ficha sin descripción todavía.'|truncatechars:95 }}</p>
+                    {% if character.main_residence %}<span class="chip">{{ character.main_residence.name }}</span>{% endif %}
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state panel-empty"><div class="empty-icon">✦</div><h2>Tu elenco empieza aquí</h2><p>Aún no hay personajes en este proyecto. Crea la primera ficha para empezar.</p><a href="{% url 'character_create' %}" class="primary-button">Crear personaje</a></div>
+{% endif %}
+{% endblock %}

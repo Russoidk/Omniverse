@@ -1,0 +1,14 @@
+{% extends 'website/form_shell.html' %}
+{% block title %}Crear cuenta — Omniverse{% endblock %}
+{% block auth_heading %}Tu próxima idea puede cambiarlo todo.{% endblock %}
+{% block auth_description %}Crea tu cuenta y empieza a construir, conectar y organizar tu universo creativo.{% endblock %}
+{% block form_content %}
+<div class="form-kicker">EMPIEZA GRATIS</div><h2>Crear cuenta</h2><p class="form-intro">Completa tus datos para comenzar.</p>
+<form method="post" class="site-form" novalidate>{% csrf_token %}
+  {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+  {% for field in form %}<div class="site-field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<small class="field-help">{{ field.help_text }}</small>{% endif %}{% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</div>{% endfor %}
+  <button type="submit" class="button-primary button-full">Crear mi cuenta <span>→</span></button>
+</form>
+<p class="form-switch">¿Ya tienes una cuenta? <a href="{% url 'web_login' %}">Inicia sesión</a></p>
+<p class="form-legal">Esta versión funciona localmente para un proyecto escolar. No se envían datos a servicios externos.</p>
+{% endblock %}

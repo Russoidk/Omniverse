@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Cronología — Omniverse{% endblock %}
+{% block content %}
+<div class="page-heading timeline-page-heading">
+    <div><p class="dashboard-eyebrow">{{ project.name }} · LÍNEA TEMPORAL</p><h1>Cronología</h1><p class="muted">Ordena acontecimientos y visualiza periodos con sus comienzos, finales y eventos interiores.</p></div>
+    <div class="heading-actions"><a class="secondary-button" href="{% url 'places' %}">⌖ Lugares</a><a class="secondary-button" href="{% url 'span_create' %}">↔ Crear lapso</a><a class="primary-button" href="{% url 'event_create' %}">＋ Nuevo acontecimiento</a></div>
+</div>
+
+<div class="timeline-toolbar">
+    <div><span class="stat-number">{{ events|length }}</span><span class="muted">acontecimientos registrados</span><small class="timeline-toolbar-help">Los eventos dentro de un lapso se agrupan y muestran con sangría.</small></div>
+    <div class="heading-actions">{% if can_export %}<a class="secondary-button" href="{% url 'timeline_export' 'pdf' %}">⇩ Exportar PDF</a><a class="secondary-button" href="{% url 'timeline_export' 'png' %}">⇩ Exportar PNG</a>{% else %}<span class="form-help">Exportación disponible con suscripción.</span><a class="secondary-button" href="{{ subscription_url }}">Suscribirse ↗</a>{% endif %}</div>
+</div>
+
+{% if timeline_items %}
+<div class="timeline-list">
+    {% for item in timeline_items %}
+        {% if item.kind == 'event' %}
+            {% include 'timeline/_event_card.html' with event=item.event nested=False %}
+        {% else %}
+            <section class="timeline-span-row">
+                <div class="timeline-marker timeline-span-main-marker" aria-hidden="true"></div>
+                <div class="timeline-date">{{ item.span.start_display }}<span>Lapso de tiempo</span><strong class="timeline-date-end">{{ item.span.end_display }}</strong></div>
+                <div class="timeline-span-card">
+                    <header class="timeline-span-header">
+                        <div><div class="chip-row"><span class="chip chip-span-start">LAPSO DE TIEMPO</span>{% if item.span.span_type %}<span class="chip">{{ item.span.span_type }}</span>{% endif %}</div><h2>{{ item.span.title }}</h2>{% if item.span.description %}<p>{{ item.span.description|linebreaksbr }}</p>{% endif %}</div>
+                        <div class="timeline-span-actions"><a class="icon-link" href="{% url 'span_edit' item.span.pk %}" aria-label="Editar lapso" title="Editar lapso">✎</a><form method="post" action="{% url 'span_delete' item.span.pk %}" onsubmit="return confirm('¿Eliminar este lapso y sus dos acontecimientos de inicio y final?')">{% csrf_token %}<button class="icon-link span-delete-button" type="submit" title="Eliminar lapso" aria-label="Eliminar lapso">×</button></form></div>
+                    </header>
+                    <div class="timeline-span-boundary-row"><span class="boundary-glyph">↳</span><span class="boundary-label">INICIO</span><a href="{% url 'event_detail' item.span.start_event.pk %}">{{ item.span.start_event.title }}</a><span class="boundary-date">{{ item.span.start_event.display_date }}</span></div>
+                    <div class="timeline-span-inner">
+                        {% for event in item.span.inner_events %}
+                            {% include 'timeline/_event_card.html' with event=event nested=True %}
+                        {% empty %}
+                            <div class="timeline-span-empty"><span>↳</span><p>No hay acontecimientos dentro de este lapso todavía. Los eventos con fechas compatibles se agruparán aquí automáticamente; también puedes asignarlo al editar un acontecimiento.</p></div>
+                        {% endfor %}
+                    </div>
+                    <div class="timeline-span-boundary-row timeline-span-boundary-end"><span class="boundary-glyph">↳</span><span class="boundary-label">FINAL</span><a href="{% url 'event_detail' item.span.end_event.pk %}">{{ item.span.end_event.title }}</a><span class="boundary-date">{{ item.span.end_event.display_date }}</span></div>
+                </div>
+            </section>
+        {% endif %}
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state panel-empty"><div class="empty-icon">◷</div><h2>Tu cronología todavía está vacía</h2><p>Los nacimientos se agregan automáticamente al completar la fecha de un personaje. Crea un acontecimiento o un lapso para comenzar.</p><div class="heading-actions" style="justify-content:center"><a href="{% url 'event_create' %}" class="primary-button">＋ Crear acontecimiento</a><a href="{% url 'span_create' %}" class="secondary-button">＋ Crear lapso</a></div></div>
+{% endif %}
+{% endblock %}

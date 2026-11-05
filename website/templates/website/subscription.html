@@ -1,0 +1,11 @@
+{% extends 'website/base_public.html' %}
+{% block title %}Omniverse Plus — Suscripción simulada{% endblock %}
+{% block content %}
+<section class="subscription-page site-container">
+  <a class="back-link" href="{% url 'web_account' %}">← Volver a mi cuenta</a>
+  <div class="subscription-hero"><span class="eyebrow"><span class="status-dot"></span> UNA EXPERIENCIA COMPLETA</span><h1>Haz espacio para<br><span class="gradient-text">todas tus ideas.</span></h1><p>Prueba las funciones avanzadas de Omniverse Plus. La activación es inmediata y totalmente simulada para este proyecto escolar.</p><div class="subscription-price"><span>PLUS</span><strong>$0</strong><small>sin pagos reales</small></div></div>
+  <div class="subscription-details"><article class="subscription-feature"><span class="feature-check">✓</span><div><h3>Proyectos adicionales</h3><p>Organiza múltiples mundos, historias o proyectos sin el límite del plan gratuito.</p></div></article><article class="subscription-feature"><span class="feature-check">✓</span><div><h3>Exportaciones</h3><p>Guarda fichas de personajes y cronologías como PDF o PNG con el diseño de Omniverse.</p></div></article><article class="subscription-feature"><span class="feature-check">✓</span><div><h3>Todas las herramientas</h3><p>Sigue usando personajes, lugares, acontecimientos y red conceptual desde un único sitio.</p></div></article></div>
+  <div class="subscription-action-card"><div><span class="card-overline">ACTIVACIÓN DE DEMOSTRACIÓN</span><h2>{% if request.user.is_subscribed %}Tu suscripción ya está activa{% else %}¿Activamos Plus?{% endif %}</h2><p>{% if request.user.is_subscribed %}Tu cuenta ya tiene habilitadas las funciones de Omniverse Plus.{% else %}Al pulsar el botón, se actualizará tu cuenta local para habilitar las funciones Plus. No se solicita información bancaria.{% endif %}</p></div>{% if request.user.is_subscribed %}<a href="{% url 'web_account' %}" class="button-secondary">Volver a mi cuenta</a>{% else %}<form method="post" action="{% url 'activate_subscription' %}">{% csrf_token %}<button type="submit" class="button-primary">Activar suscripción simulada <span>↗</span></button></form>{% endif %}</div>
+  <p class="simulated-warning"><span>ⓘ</span> Esta suscripción es solo una simulación local. No hay pagos, contratos ni servicios externos asociados.</p>
+</section>
+{% endblock %}

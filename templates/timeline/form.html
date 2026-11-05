@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}{% if mode == 'create' %}Nuevo acontecimiento{% else %}Editar acontecimiento{% endif %} — Omniverse{% endblock %}
+{% block content %}
+<div class="page-heading compact-heading"><div><a class="back-link" href="{% if event %}{% url 'event_detail' event.pk %}{% else %}{% url 'timeline' %}{% endif %}">← Volver</a><h1>{% if mode == 'create' %}Nuevo acontecimiento{% else %}Editar acontecimiento{% endif %}</h1><p class="muted">Los tipos y roles son texto libre; utiliza la clasificación que mejor encaje en tu universo.</p></div></div>
+<form method="post" class="editor-form">{% csrf_token %}{% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+    <section class="form-section"><h2>Información del acontecimiento</h2><div class="form-grid two-col">{% for field in form %}<div class="form-field {% if field.name == 'title' or field.name == 'description' %}span-two{% endif %}">{{ field.label_tag }}{{ field }}{% if field.help_text %}<p class="form-help">{{ field.help_text }}</p>{% endif %}{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endfor %}</div><p class="form-help">Puedes seleccionar varios personajes o lugares con Ctrl (Windows) o Cmd (Mac).</p></section>
+    <div class="form-actions"><a href="{% if event %}{% url 'event_detail' event.pk %}{% else %}{% url 'timeline' %}{% endif %}" class="secondary-button">Cancelar</a><button type="submit" class="primary-button">Guardar acontecimiento</button></div>
+</form>
+{% endblock %}

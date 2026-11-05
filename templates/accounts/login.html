@@ -1,0 +1,27 @@
+{% extends 'project_base.html' %}
+{% load static %}
+{% block title %}Iniciar sesión — Omniverse{% endblock %}
+{% block content %}
+<main class="auth-shell">
+    <section class="auth-page">
+        <div class="auth-brand">
+            <img src="{% static 'images/omniverse-logo.png' %}" alt="" class="auth-logo">
+            <span>OMNIVERSE</span>
+        </div>
+        <div class="auth-intro"><p class="dashboard-eyebrow">TU ESPACIO CREATIVO</p><h1>Bienvenido de nuevo</h1><p class="muted">Inicia sesión para continuar con tus proyectos.</p></div>
+        <form method="post" class="form-stack auth-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
+            {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+            {% for field in form %}
+                <div class="form-field">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+            {% endfor %}
+            <button class="primary-button auth-submit" type="submit"><span>Iniciar sesión</span><span aria-hidden="true">→</span></button>
+        </form>
+        <div class="auth-divider"><span></span><small>¿Primera vez en Omniverse?</small><span></span></div>
+        <a class="secondary-button auth-register" href="{{ registration_url }}"><span>Crear una cuenta</span><span aria-hidden="true">↗</span></a>
+        <p class="auth-note">Crea tu cuenta en el sitio local de Omniverse; no necesitas salir del programa.</p>
+    </section>
+    <div class="auth-decoration" aria-hidden="true"><div class="auth-decoration-glow"></div><p>Todo empieza con una idea.</p></div>
+</main>
+{% endblock %}

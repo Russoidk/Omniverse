@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}{{ character.full_name }} — Omniverse{% endblock %}
+{% block content %}
+<div class="sheet-topbar"><a href="{% url 'characters' %}" class="back-link">← Volver a personajes</a><div class="heading-actions"><span class="status-pill"><span class="status-dot"></span>{{ character.current_status|default:'Estado sin definir' }}</span><a href="{% url 'character_edit' character.pk %}" class="secondary-button">✎ Editar ficha</a><a href="{% url 'character_delete' character.pk %}" class="danger-button">⌫ Eliminar</a></div></div>
+<section class="character-sheet-hero">
+    <header class="sheet-character-heading"><div><p class="dashboard-eyebrow">FICHA DE PERSONAJE</p><h1>{{ character.full_name }}</h1><p class="hero-role">{{ character.role|default:character.species|default:'Personaje' }}</p></div><div class="heading-actions">{% if can_export %}<a class="secondary-button" href="{% url 'character_export' character.pk 'pdf' %}">⇩ Exportar PDF</a><a class="secondary-button" href="{% url 'character_export' character.pk 'png' %}">⇩ Exportar PNG</a>{% else %}<a class="secondary-button" href="{{ subscription_url }}">✦ Suscribirse para exportar ↗</a>{% endif %}</div></header>
+    <div class="sheet-quote-row">
+        <article class="sheet-quote-card"><div><span class="quote-number">01 · VISIÓN DEL MUNDO</span>{% if character.quote_1 %}<blockquote>“{{ character.quote_1 }}”</blockquote>{% else %}<blockquote class="muted">Añade una cita que revele cómo interpreta el mundo.</blockquote>{% endif %}</div><cite>{% if character.quote_1_author %}{{ character.quote_1_author }}{% endif %}{% if character.quote_1_context %}{% if character.quote_1_author %} · {% endif %}{{ character.quote_1_context }}{% endif %}</cite></article>
+        <div class="sheet-portrait">{% if character.image %}<img src="{{ character.image.url }}" alt="Retrato de {{ character.full_name }}">{% else %}<span class="sheet-portrait-placeholder">✦</span>{% endif %}</div>
+        <article class="sheet-quote-card"><div><span class="quote-number">02 · ESENCIA / CONTRADICCIÓN</span>{% if character.quote_2 %}<blockquote>“{{ character.quote_2 }}”</blockquote>{% else %}<blockquote class="muted">Añade una cita que lo describa, lo contradiga o muestre otra faceta.</blockquote>{% endif %}</div><cite>{% if character.quote_2_author %}{{ character.quote_2_author }}{% endif %}{% if character.quote_2_context %}{% if character.quote_2_author %} · {% endif %}{{ character.quote_2_context }}{% endif %}</cite></article>
+    </div>
+</section>
+<div class="detail-columns sheet-detail-section">
+    <section class="content-panel"><div class="panel-heading"><h2>Datos esenciales</h2></div><dl class="detail-grid">
+        <div><dt>Fecha de nacimiento</dt><dd>{{ character.birth_date|default:'—' }}</dd></div>
+        <div><dt>Edad al inicio</dt><dd>{{ character.age_at_story_start|default:'—' }}</dd></div>
+        <div><dt>Especie o raza</dt><dd>{{ character.species|default:'—' }}</dd></div>
+        <div><dt>Estado actual</dt><dd>{{ character.current_status|default:'—' }}</dd></div>
+        <div><dt>Facción / afiliación</dt><dd>{{ character.faction|default:'—' }}</dd></div>
+        <div><dt>Residencia principal</dt><dd>{% if character.main_residence %}<a class="text-link" href="{% url 'place_edit' character.main_residence.pk %}">{{ character.main_residence.name }}</a>{% else %}—{% endif %}</dd></div>
+    </dl></section>
+    <section class="content-panel"><div class="panel-heading"><h2>Relaciones</h2><span class="chip">Vínculos</span></div>
+        <p class="form-help">Padres, familia, amistades, rivales e intereses se representan como vínculos entre fichas.</p>
+        {% if outgoing_relationships or incoming_relationships %}<div class="relationship-list">
+            {% for rel in outgoing_relationships %}<div class="relationship-row"><div><strong>{{ rel.relationship_type }}</strong>{% if rel.character_2 %}<a href="{% url 'character_detail' rel.character_2.pk %}">{{ rel.character_2.full_name }}</a>{% else %}<span class="relationship-placeholder-name">{{ rel.character_2_name }} <small>Sin ficha</small></span>{% endif %}{% if rel.description %}<p>{{ rel.description|linebreaksbr }}</p>{% endif %}</div><form method="post" action="{% url 'character_delete_relationship' character.pk rel.pk %}">{% csrf_token %}<button class="icon-button" title="Eliminar relación" type="submit">×</button></form></div>{% endfor %}
+            {% for rel in incoming_relationships %}<div class="relationship-row"><div><strong>{{ rel.character_1.full_name }} → {{ rel.relationship_type }} → {{ character.full_name }}</strong>{% if rel.description %}<p>{{ rel.description|linebreaksbr }}</p>{% endif %}</div></div>{% endfor %}
+        </div>{% else %}<p class="empty-inline">Todavía no hay relaciones registradas.</p>{% endif %}
+        <details class="inline-editor"><summary>＋ Añadir relación</summary><form method="post" action="{% url 'character_add_relationship' character.pk %}" class="form-stack">{% csrf_token %}{{ relationship_form.as_p }}<button class="primary-button" type="submit">Guardar relación</button></form></details>
+    </section>
+</div>
+<div class="detail-columns lower-detail sheet-detail-section">
+    <section class="content-panel"><div class="panel-heading"><h2>Rasgos y preferencias</h2></div><dl class="long-detail-list">
+        <div><dt>Rasgos dominantes</dt><dd>{{ character.dominant_traits|default:'—'|linebreaksbr }}</dd></div><div><dt>Rasgos destructivos</dt><dd>{{ character.destructive_traits|default:'—'|linebreaksbr }}</dd></div><div><dt>Sueño secreto</dt><dd>{{ character.secret_dream|default:'—'|linebreaksbr }}</dd></div><div><dt>Gustos</dt><dd>{{ character.likes|default:'—'|linebreaksbr }}</dd></div><div><dt>Disgustos</dt><dd>{{ character.dislikes|default:'—'|linebreaksbr }}</dd></div><div><dt>Sería más feliz si…</dt><dd>{{ character.happier_if|default:'—'|linebreaksbr }}</dd></div>
+    </dl></section>
+    <section class="content-panel"><div class="panel-heading"><h2>Historia personal</h2></div><div class="long-detail-list"><div><dt>Infancia</dt><dd>{{ character.childhood|default:'—'|linebreaksbr }}</dd></div><div><dt>Adolescencia</dt><dd>{{ character.adolescence|default:'—'|linebreaksbr }}</dd></div><div><dt>Adultez</dt><dd>{{ character.adulthood|default:'—'|linebreaksbr }}</dd></div></div><div class="panel-heading section-spacer"><h2>En la cronología</h2></div>
+        {% for link in character_events %}<a class="event-mini-card" href="{% url 'event_detail' link.event.pk %}"><span>{{ link.event.date_value|default:'Sin fecha' }}</span><strong>{{ link.event.title }}</strong>{% if link.event.automatic %}<small>Automático</small>{% endif %}</a>{% empty %}<p class="empty-inline">No hay acontecimientos vinculados.</p>{% endfor %}
+    </section>
+</div>
+{% endblock %}
